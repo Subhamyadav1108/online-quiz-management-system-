@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced MCQ Management System</title>
+ 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+ 
+<style>
+*{
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+ 
+body{
+    margin:0;
+    background:#eef2ff;
+    color:#111827;
+}
+ 
+body.dark{
+    background:#111827;
+    color:white;
+}
+ 
+header{
+    background:#2563eb;
+    color:white;
+    padding:20px;
+    text-align:center;
+}
+ 
+nav{
+    background:#1e40af;
+    padding:10px;
+    text-align:center;
+}
+ 
+nav button{
+    margin:5px;
+    padding:10px 16px;
+    border:0;
+    border-radius:6px;
+    cursor:pointer;
+}
+ 
+.container{
+    max-width:1000px;
+    margin:25px auto;
+    padding:15px;
+}
+ 
+.card{
+    background:white;
+    padding:25px;
+    margin:15px 0;
+    border-radius:12px;
+    box-shadow:0 3px 12px #bbb;
+}
+ 
+.dark .card{
+    background:#1f2937;
+    box-shadow:0 3px 12px #000;
+}
+ 
+input,select{
+    width:100%;
+    padding:12px;
+    margin:8px 0;
+    border:1px solid #ccc;
+    border-radius:6px;
+}
+ 
+button{
+    background:#2563eb;
+    color:white;
+    padding:11px 18px;
+    border:0;
+    border-radius:6px;
+    cursor:pointer;
+}
+ 
+button:hover{
+    background:#1d4ed8;
+}
+ 
+.option{
+    width:100%;
+    text-align:left;
+    margin:8px 0;
+    background:#f3f4f6;
+    color:#111;
+}
+ 
+.dark .option{
+    background:#374151;
+    color:white;
+}
+ 
+.option:hover{
+    background:#bfdbfe;
+}
+ 
+.hidden{
+    display:none;
+}
+ 
+.timer{
+    float:right;
+    color:red;
+    font-weight:bold;
+    font-size:20px;
+}
+ 
+.streak-badge{
+    display:inline-block;
+    background:#fef3c7;
+    color:#b45309;
+    font-weight:bold;
+    padding:4px 12px;
+    border-radius:20px;
+    font-size:15px;
+    margin-bottom:10px;
+}
+ 
+.dark .streak-badge{
+    background:#78350f;
+    color:#fde68a;
+}
+ 
+.streak-badge.on-fire{
+    animation:streakPulse 0.5s ease;
+    background:#fed7aa;
+    color:#c2410c;
+}
+ 
+.dark .streak-badge.on-fire{
+    background:#9a3412;
+    color:#fed7aa;
+}
+ 
+@keyframes streakPulse{
+    0%{ transform:scale(1); }
+    40%{ transform:scale(1.18); }
+    100%{ transform:scale(1); }
+}
+ 
+.result{
+    text-align:center;
+    font-size:24px;
+}
+ 
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+ 
+th,td{
+    padding:10px;
+    border:1px solid #ccc;
+    text-align:center;
+}
+ 
+.delete{
+    background:#dc2626;
+}
+ 
+.success{
+    color:green;
+    font-weight:bold;
+}
+ 
+footer{
+    text-align:center;
+    background:#111827;
+    color:white;
+    padding:20px;
+    margin-top:30px;
+}
+ 
+/* ===== Statistics module styles ===== */
+ 
+.stat-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:15px;
+    margin-bottom:10px;
+}
+ 
+.stat-box{
+    background:#eef2ff;
+    border-radius:10px;
+    padding:18px;
+    text-align:center;
+}
+ 
+.dark .stat-box{
+    background:#374151;
+}
+ 
+.stat-box h3{
+    margin:0 0 5px 0;
+    font-size:26px;
+    color:#2563eb;
+}
+ 
+.dark .stat-box h3{
+    color:#93c5fd;
+}
+ 
+.stat-box p{
+    margin:0;
+    font-size:13px;
+    color:#555;
+}
+ 
+.dark .stat-box p{
+    color:#d1d5db;
+}
+ 
+.chart-wrap{
+    position:relative;
+    height:280px;
+    margin:20px 0;
+}
+ 
+.diff-tag{
+    padding:3px 8px;
+    border-radius:6px;
+    color:white;
+    font-size:12px;
+}
+ 
+.diff-hard{ background:#dc2626; }
+.diff-medium{ background:#f59e0b; }
+.diff-easy{ background:#16a34a; }
+</style>
+</head>
+ 
+<body>
+ 
+<header>
+    <h1>🎓 MCQ MANAGEMENT SYSTEM</h1>
+    <p>Advanced Online Examination Platform</p>
+</header>
+ 
+<nav>
+    <button onclick="showPage('home')">🏠 Home</button>
+    <button onclick="showPage('quiz')">📝 Quiz</button>
+    <button onclick="showPage('admin')">⚙️ Admin</button>
+    <button onclick="showPage('leaderboard')">🏆 Leaderboard</button>
+    <button onclick="showPage('stats')">📊 Statistics</button>
+    <button onclick="toggleDark()">🌙 Dark Mode</button>
+</nav>
+ 
+<div class="container">
+ 
+<!-- HOME -->
+<section id="home" class="page">
+    <div class="card">
+        <h2>Welcome to MCQ Management System</h2>
+        <p>Test your knowledge with our online MCQ examination system.</p>
+ 
+        <input type="text" id="studentName" placeholder="Enter Student Name">
+ 
+        <select id="category">
+            <option value="All">All Subjects</option>
+            <option value="Computer">Computer</option>
+            <option value="DBMS">DBMS</option>
+            <option value="Java">Java</option>
+        </select>
+ 
+        <button onclick="startQuiz()">🚀 Start Quiz</button>
+    </div>
+</section>
+ 
+ 
+<!-- QUIZ -->
+<section id="quiz" class="page hidden">
+ 
+    <div class="card">
+ 
+        <span class="timer" id="timer">Time: 30</span>
+ 
+        <span class="streak-badge" id="streakBadge">🔥 Streak: 0</span>
+ 
+        <h2 id="question"></h2>
+ 
+        <div id="options"></div>
+ 
+        <br>
+ 
+        <button onclick="nextQuestion()">Next ➡️</button>
+ 
+    </div>
+ 
+</section>
+ 
+ 
+<!-- ADMIN -->
+<section id="admin" class="page hidden">
+ 
+    <div class="card" id="adminLogin">
+ 
+        <h2>🔐 Admin Login</h2>
+ 
+        <input type="text" id="adminUser" placeholder="Username">
+ 
+        <input type="password" id="adminPass" placeholder="Password">
+ 
+        <button onclick="adminLogin()">Login</button>
+ 
+        <p>Demo: admin / 1234</p>
+ 
+    </div>
+ 
+ 
+    <div class="card hidden" id="adminPanel">
+ 
+        <h2>⚙️ Admin Dashboard</h2>
+ 
+        <h3>Add New Question</h3>
+ 
+        <input id="newQuestion" placeholder="Enter Question">
+ 
+        <input id="op1" placeholder="Option 1">
+        <input id="op2" placeholder="Option 2">
+        <input id="op3" placeholder="Option 3">
+        <input id="op4" placeholder="Option 4">
+ 
+        <select id="correct">
+            <option value="0">Correct Option 1</option>
+            <option value="1">Correct Option 2</option>
+            <option value="2">Correct Option 3</option>
+            <option value="3">Correct Option 4</option>
+        </select>
+ 
+        <select id="newCategory">
+            <option>Computer</option>
+            <option>DBMS</option>
+            <option>Java</option>
+        </select>
+ 
+        <button onclick="addQuestion()">➕ Add Question</button>
+ 
+        <h3>Question Bank</h3>
+ 
+        <input id="search" onkeyup="displayQuestions()"
+               placeholder="🔍 Search Questions">
+ 
+        <div id="questionList"></div>
+ 
+    </div>
+ 
+</section>
+ 
+ 
+<!-- LEADERBOARD -->
+<section id="leaderboard" class="page hidden">
+ 
+    <div class="card">
+ 
+        <h2>🏆 Leaderboard</h2>
+ 
+        <table>
+ 
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Student</th>
+                    <th>Score</th>
+                    <th>Percentage</th>
+                    <th>🔥 Best Streak</th>
+                </tr>
+            </thead>
+ 
+            <tbody id="leaderboardData"></tbody>
+ 
+        </table>
+ 
+        <br>
+ 
+        <button onclick="clearResults()">🗑 Clear Results</button>
+ 
+    </div>
+ 
+</section>
+ 
+ 
+<!-- STATISTICS -->
+<section id="stats" class="page hidden">
+ 
+    <div class="card">
+        <h2>📊 Statistics & Analytics</h2>
+        <p>Overall performance insights across all quiz attempts.</p>
+ 
+        <div class="stat-grid" id="statOverview"></div>
+    </div>
+ 
+    <div class="card">
+        <h3>Score Distribution</h3>
+        <p>How students' percentage scores are spread across ranges.</p>
+        <div class="chart-wrap"><canvas id="scoreDistChart"></canvas></div>
+    </div>
+ 
+    <div class="card">
+        <h3>Category-wise Average Performance</h3>
+        <p>Average percentage score grouped by quiz category.</p>
+        <div class="chart-wrap"><canvas id="categoryChart"></canvas></div>
+    </div>
+ 
+    <div class="card">
+        <h3>Score Trend (Attempt-wise)</h3>
+        <p>Percentage scored on each attempt, in the order they were taken.</p>
+        <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+    </div>
+ 
+    <div class="card">
+        <h3>Question Difficulty Analysis</h3>
+        <p>Percentage of students who answered each question correctly. Lower % = harder question.</p>
+        <div id="difficultyTableWrap"></div>
+    </div>
+ 
+    <div class="card">
+        <button class="delete" onclick="clearAllStats()">🗑 Clear All Statistics Data</button>
+    </div>
+ 
+</section>
+ 
+</div>
+ 
+<footer>
+    © 2026 Advanced MCQ Management System
+</footer>
+ 
+ 
+<script>
+ 
+/* ================= QUESTIONS ================= */
+ 
+let defaultQuestions = [
+ 
+{
+question:"What does HTML stand for?",
+options:[
+"Hyper Text Markup Language",
+"High Text Machine Language",
+"Hyperlink Text Markup Language",
+"Home Tool Markup Language"
+],
+answer:0,
+category:"Computer"
+},
+ 
+{
+question:"Which language is used for styling web pages?",
+options:["HTML","CSS","Java","SQL"],
+answer:1,
+category:"Computer"
+},
+ 
+{
+question:"What is DBMS?",
+options:[
+"Database Management System",
+"Data Backup Management System",
+"Database Machine System",
+"Data Management Software"
+],
+answer:0,
+category:"DBMS"
+},
+ 
+{
+question:"Which command is used to retrieve data from a database?",
+options:["INSERT","UPDATE","SELECT","DELETE"],
+answer:2,
+category:"DBMS"
+},
+ 
+{
+question:"Which keyword is used to create a class in Java?",
+options:["class","ClassName","new","object"],
+answer:0,
+category:"Java"
+},
+ 
+{
+question:"Which method is the starting point of a Java program?",
+options:[
+"start()",
+"main()",
+"run()",
+"execute()"
+],
+answer:1,
+category:"Java"
+}
+ 
+];
+/* ================= LOCAL STORAGE ================= */
+ 
+let questions =
+JSON.parse(localStorage.getItem("mcqQuestions"))
+|| defaultQuestions;
+ 
+let results =
+JSON.parse(localStorage.getItem("mcqResults"))
+|| [];
+ 
+/* answerLog: one entry per question answered across all attempts,
+   used to power the statistics/analytics module */
+let answerLog =
+JSON.parse(localStorage.getItem("mcqAnswerLog"))
+|| [];
+ 
+/* ================= VARIABLES ================= */
+ 
+let current=0;
+let score=0;
+let quizQuestions=[];
+let selected=false;
+let time=30;
+let timer;
+ 
+let activeStudentName="";
+let activeCategory="All";
+ 
+let currentStreak=0;
+let bestStreak=0;
+ 
+/* chart instances so we can destroy & redraw cleanly */
+let scoreDistChartObj=null;
+let categoryChartObj=null;
+let trendChartObj=null;
+ 
+/* ================= PAGE ================= */
+ 
+function showPage(page){
+ 
+    document.querySelectorAll(".page").forEach(
+        p=>p.classList.add("hidden")
+    );
+ 
+    document.getElementById(page).classList.remove("hidden");
+ 
+    if(page==="leaderboard"){
+        displayLeaderboard();
+    }
+ 
+    if(page==="admin"){
+        displayQuestions();
+    }
+ 
+    if(page==="stats"){
+        displayStatistics();
+    }
+}
+/* ================= DARK MODE ================= */
+ 
+function toggleDark(){
+ 
+    document.body.classList.toggle("dark");
+ 
+}
+/* ================= START QUIZ ================= */
+ 
+function startQuiz(){
+ 
+    let name=document.getElementById("studentName").value.trim();
+ 
+    if(name===""){
+        alert("Please enter student name");
+        return;
+    }
+ 
+    let category=document.getElementById("category").value;
+ 
+    activeStudentName=name;
+    activeCategory=category;
+ 
+    quizQuestions=questions.filter(q=>
+        category==="All" || q.category===category
+    );
+ 
+    if(quizQuestions.length===0){
+        alert("No questions available");
+        return;
+    }
+ 
+    /* Random questions */
+ 
+    quizQuestions.sort(()=>Math.random()-0.5);
+ 
+    current=0;
+    score=0;
+    currentStreak=0;
+    bestStreak=0;
+ 
+    showPage("quiz");
+ 
+    loadQuestion();
+ 
+}
+/* ================= LOAD QUESTION ================= */
+ 
+function loadQuestion(){
+ 
+    clearInterval(timer);
+ 
+    selected=false;
+    time=30;
+ 
+    document.getElementById("timer").innerText=
+        "Time: "+time;
+ 
+    let streakBadgeEl=document.getElementById("streakBadge");
+    if(streakBadgeEl){
+        streakBadgeEl.innerText="🔥 Streak: "+currentStreak;
+    }
+ 
+    let q=quizQuestions[current];
+ 
+    document.getElementById("question").innerText=
+        "Q"+(current+1)+". "+q.question;
+ 
+    let html="";
+ 
+    q.options.forEach((option,index)=>{
+ 
+        html+=`
+        <button class="option"
+        onclick="selectAnswer(${index})">
+        ${option}
+        </button>
+        `;
+ 
+    });
+ 
+    document.getElementById("options").innerHTML=html;
+ 
+    timer=setInterval(()=>{
+ 
+        time--;
+ 
+        document.getElementById("timer").innerText=
+            "Time: "+time;
+ 
+        if(time<=0){
+ 
+            clearInterval(timer);
+ 
+            /* record as unanswered/incorrect before moving on */
+            logAnswer(quizQuestions[current], false);
+ 
+            nextQuestion();
+ 
+        }
+ 
+    },1000);
+ 
+}
+/* ================= ANSWER ================= */
+ 
+function selectAnswer(index){
+ 
+    if(selected) return;
+ 
+    selected=true;
+ 
+    let isCorrect = index===quizQuestions[current].answer;
+ 
+    if(isCorrect){
+ 
+        score++;
+ 
+    }
+ 
+    logAnswer(quizQuestions[current], isCorrect);
+ 
+    document.querySelectorAll(".option")
+    .forEach((button,i)=>{
+ 
+        if(i===quizQuestions[current].answer){
+            button.style.background="lightgreen";
+        }
+ 
+        if(i===index &&
+           index!==quizQuestions[current].answer){
+            button.style.background="tomato";
+        }
+ 
+    });
+ 
+}
+ 
+/* ================= LOG ANSWER (for statistics) ================= */
+ 
+function logAnswer(questionObj, isCorrect){
+ 
+    updateStreak(isCorrect);
+ 
+    answerLog.push({
+ 
+        question: questionObj.question,
+        category: questionObj.category,
+        correct: isCorrect,
+        student: activeStudentName,
+        timestamp: Date.now()
+ 
+    });
+ 
+    localStorage.setItem(
+        "mcqAnswerLog",
+        JSON.stringify(answerLog)
+    );
+ 
+}
+ 
+/* ================= STREAK TRACKING ================= */
+ 
+function updateStreak(isCorrect){
+ 
+    if(isCorrect){
+ 
+        currentStreak++;
+ 
+        if(currentStreak>bestStreak){
+            bestStreak=currentStreak;
+        }
+ 
+    }else{
+ 
+        currentStreak=0;
+ 
+    }
+ 
+    let badge=document.getElementById("streakBadge");
+ 
+    if(!badge) return;
+ 
+    badge.innerText="🔥 Streak: "+currentStreak;
+ 
+    if(currentStreak>0 && currentStreak%3===0){
+ 
+        badge.classList.add("on-fire");
+ 
+        setTimeout(()=>badge.classList.remove("on-fire"),500);
+ 
+    }
+ 
+}
+ 
+/* ================= NEXT ================= */
+ 
+function nextQuestion(){
+ 
+    clearInterval(timer);
+ 
+    if(!selected){
+ 
+        /* No answer selected before Next was clicked manually */
+        logAnswer(quizQuestions[current], false);
+ 
+    }
+ 
+    current++;
+ 
+    if(current<quizQuestions.length){
+ 
+        loadQuestion();
+ 
+    }else{
+ 
+        finishQuiz();
+ 
+    }
+ 
+}
+/* ================= RESULT ================= */
+ 
+function finishQuiz(){
+ 
+    clearInterval(timer);
+ 
+    let name=document.getElementById("studentName").value;
+ 
+    let total=quizQuestions.length;
+ 
+    let percentage=
+        Math.round((score/total)*100);
+ 
+    results.push({
+ 
+        name:name,
+        score:score,
+        total:total,
+        percentage:percentage,
+        category:activeCategory,
+        bestStreak:bestStreak,
+        timestamp:Date.now()
+ 
+    });
+ 
+    localStorage.setItem(
+        "mcqResults",
+        JSON.stringify(results)
+    );
+ 
+    document.getElementById("question").innerHTML=
+        "🎉 Quiz Completed!";
+ 
+    document.getElementById("options").innerHTML=`
+ 
+        <div class="result">
+ 
+            <h2>🏆 Your Result</h2>
+ 
+            <p>Student: <b>${name}</b></p>
+ 
+            <p>Score: <b>${score}/${total}</b></p>
+ 
+            <p>Percentage: <b>${percentage}%</b></p>
+ 
+            <p>🔥 Best Streak: <b>${bestStreak}</b></p>
+ 
+            <button onclick="downloadResult()">
+            📥 Download Result
+            </button>
+ 
+            <button onclick="showPage('stats')">
+            📊 View Statistics
+            </button>
+ 
+            <button onclick="showPage('home')">
+            🔄 Try Again
+            </button>
+ 
+        </div>
+ 
+    `;
+ 
+}
+/* ================= ADMIN LOGIN ================= */
+ 
+function adminLogin(){
+ 
+    let user=document.getElementById("adminUser").value;
+ 
+    let pass=document.getElementById("adminPass").value;
+ 
+    if(user==="admin" && pass==="1234"){
+ 
+        document.getElementById("adminLogin")
+        .classList.add("hidden");
+ 
+        document.getElementById("adminPanel")
+        .classList.remove("hidden");
+ 
+        displayQuestions();
+ 
+    }else{
+ 
+        alert("Invalid Admin Login");
+ 
+    }
+ 
+}
+/* ================= ADD QUESTION ================= */
+ 
+function addQuestion(){
+ 
+    let q=document.getElementById("newQuestion").value;
+ 
+    let options=[
+ 
+        document.getElementById("op1").value,
+        document.getElementById("op2").value,
+        document.getElementById("op3").value,
+        document.getElementById("op4").value
+ 
+    ];
+ 
+    let answer=
+        Number(document.getElementById("correct").value);
+ 
+    let category=
+        document.getElementById("newCategory").value;
+ 
+    if(q==="" || options.some(x=>x==="")){
+ 
+        alert("Please fill all fields");
+ 
+        return;
+ 
+    }
+ 
+    questions.push({
+ 
+        question:q,
+        options:options,
+        answer:answer,
+        category:category
+ 
+    });
+ 
+    localStorage.setItem(
+        "mcqQuestions",
+        JSON.stringify(questions)
+    );
+ 
+    alert("Question Added Successfully!");
+ 
+    document.getElementById("newQuestion").value="";
+ 
+    document.getElementById("op1").value="";
+    document.getElementById("op2").value="";
+    document.getElementById("op3").value="";
+    document.getElementById("op4").value="";
+ 
+    displayQuestions();
+ 
+}
+ 
+/* ================= DISPLAY QUESTIONS ================= */
+ 
+function displayQuestions(){
+ 
+    let search=
+        document.getElementById("search")?.value
+        .toLowerCase() || "";
+ 
+    let html="";
+ 
+    questions.forEach((q,index)=>{
+ 
+        if(!q.question.toLowerCase().includes(search))
+            return;
+ 
+        html+=`
+ 
+        <div class="card">
+ 
+            <b>${index+1}. ${q.question}</b>
+ 
+            <p>Category: ${q.category}</p>
+ 
+            <p>
+            1. ${q.options[0]}<br>
+            2. ${q.options[1]}<br>
+            3. ${q.options[2]}<br>
+            4. ${q.options[3]}
+            </p>
+ 
+            <button class="delete"
+            onclick="deleteQuestion(${index})">
+            🗑 Delete
+            </button>
+ 
+        </div>
+ 
+        `;
+ 
+    });
+ 
+    document.getElementById("questionList").innerHTML=html;
+ 
+}
+/* ================= DELETE ================= */
+ 
+function deleteQuestion(index){
+ 
+    if(confirm("Delete this question?")){
+ 
+        questions.splice(index,1);
+ 
+        localStorage.setItem(
+            "mcqQuestions",
+            JSON.stringify(questions)
+        );
+ 
+        displayQuestions();
+ 
+    }
+ 
+}
+ 
+/* ================= LEADERBOARD ================= */
+ 
+function displayLeaderboard(){
+ 
+    let data=[...results];
+ 
+    data.sort((a,b)=>b.percentage-a.percentage);
+ 
+    let html="";
+ 
+    data.forEach((r,index)=>{
+ 
+        html+=`
+ 
+        <tr>
+ 
+            <td>${index+1}</td>
+ 
+            <td>${r.name}</td>
+ 
+            <td>${r.score}/${r.total}</td>
+ 
+            <td>${r.percentage}%</td>
+ 
+            <td>🔥 ${r.bestStreak !== undefined ? r.bestStreak : "—"}</td>
+ 
+        </tr>
+ 
+        `;
+ 
+    });
+ 
+    document.getElementById("leaderboardData")
+    .innerHTML=html ||
+    "<tr><td colspan='5'>No Results Yet</td></tr>";
+ 
+}
+/* ================= CLEAR RESULTS ================= */
+ 
+function clearResults(){
+ 
+    if(confirm("Clear all results?")){
+ 
+        results=[];
+ 
+        localStorage.removeItem("mcqResults");
+ 
+        displayLeaderboard();
+ 
+    }
+ 
+}
+/* ================= DOWNLOAD RESULT ================= */
+ 
+function downloadResult(){
+ 
+    let name=document.getElementById("studentName").value;
+ 
+    let last=results[results.length-1];
+ 
+    let text=
+`
+MCQ MANAGEMENT SYSTEM
+======================
+ 
+Student Name: ${name}
+Score: ${last.score}/${last.total}
+Percentage: ${last.percentage}%
+ 
+Congratulations!
+`;
+ 
+    let blob=new Blob([text],{
+        type:"text/plain"
+    });
+ 
+    let url=URL.createObjectURL(blob);
+ 
+    let a=document.createElement("a");
+ 
+    a.href=url;
+ 
+    a.download="MCQ_Result.txt";
+ 
+    a.click();
+ 
+    URL.revokeObjectURL(url);
+ 
+}
+ 
+/* ================= STATISTICS & ANALYTICS MODULE ================= */
+ 
+function displayStatistics(){
+ 
+    renderOverview();
+    renderScoreDistribution();
+    renderCategoryChart();
+    renderTrendChart();
+    renderDifficultyTable();
+ 
+}
+ 
+/* ---- Overview cards ---- */
+ 
+function renderOverview(){
+ 
+    let wrap=document.getElementById("statOverview");
+ 
+    if(results.length===0){
+ 
+        wrap.innerHTML=
+        "<div class='stat-box'><h3>—</h3><p>No attempts recorded yet</p></div>";
+ 
+        return;
+ 
+    }
+ 
+    let totalAttempts=results.length;
+ 
+    let avgPercent=Math.round(
+        results.reduce((sum,r)=>sum+r.percentage,0)/totalAttempts
+    );
+ 
+    let highest=Math.max(...results.map(r=>r.percentage));
+ 
+    let passCount=results.filter(r=>r.percentage>=40).length;
+ 
+    let passRate=Math.round((passCount/totalAttempts)*100);
+ 
+    let longestStreak=Math.max(
+        0,
+        ...results.map(r=>r.bestStreak !== undefined ? r.bestStreak : 0)
+    );
+ 
+    wrap.innerHTML=`
+ 
+        <div class="stat-box">
+            <h3>${totalAttempts}</h3>
+            <p>Total Attempts</p>
+        </div>
+ 
+        <div class="stat-box">
+            <h3>${avgPercent}%</h3>
+            <p>Average Score</p>
+        </div>
+ 
+        <div class="stat-box">
+            <h3>${highest}%</h3>
+            <p>Highest Score</p>
+        </div>
+ 
+        <div class="stat-box">
+            <h3>${passRate}%</h3>
+            <p>Pass Rate (≥40%)</p>
+        </div>
+ 
+        <div class="stat-box">
+            <h3>🔥 ${longestStreak}</h3>
+            <p>Longest Streak Ever</p>
+        </div>
+ 
+    `;
+ 
+}
+ 
+/* ---- Score distribution histogram ---- */
+ 
+function renderScoreDistribution(){
+ 
+    let ranges=["0-20","21-40","41-60","61-80","81-100"];
+ 
+    let counts=[0,0,0,0,0];
+ 
+    results.forEach(r=>{
+ 
+        let p=r.percentage;
+ 
+        if(p<=20) counts[0]++;
+        else if(p<=40) counts[1]++;
+        else if(p<=60) counts[2]++;
+        else if(p<=80) counts[3]++;
+        else counts[4]++;
+ 
+    });
+ 
+    if(scoreDistChartObj) scoreDistChartObj.destroy();
+ 
+    scoreDistChartObj=new Chart(
+        document.getElementById("scoreDistChart"),
+        {
+            type:"bar",
+            data:{
+                labels:ranges,
+                datasets:[{
+                    label:"Number of Attempts",
+                    data:counts,
+                    backgroundColor:"#2563eb"
+                }]
+            },
+            options:{
+                responsive:true,
+                maintainAspectRatio:false,
+                scales:{
+                    y:{ beginAtZero:true, ticks:{ stepSize:1 } }
+                }
+            }
+        }
+    );
+ 
+}
+ 
+/* ---- Category-wise average performance ---- */
+ 
+function renderCategoryChart(){
+ 
+    let grouped={};
+ 
+    results.forEach(r=>{
+ 
+        let cat = r.category || "All";
+ 
+        if(!grouped[cat]) grouped[cat]=[];
+ 
+        grouped[cat].push(r.percentage);
+ 
+    });
+ 
+    let labels=Object.keys(grouped);
+ 
+    let averages=labels.map(cat=>{
+ 
+        let arr=grouped[cat];
+ 
+        return Math.round(
+            arr.reduce((a,b)=>a+b,0)/arr.length
+        );
+ 
+    });
+ 
+    if(categoryChartObj) categoryChartObj.destroy();
+ 
+    categoryChartObj=new Chart(
+        document.getElementById("categoryChart"),
+        {
+            type:"bar",
+            data:{
+                labels: labels.length ? labels : ["No Data"],
+                datasets:[{
+                    label:"Average %",
+                    data: averages.length ? averages : [0],
+                    backgroundColor:"#16a34a"
+                }]
+            },
+            options:{
+                responsive:true,
+                maintainAspectRatio:false,
+                indexAxis:"y",
+                scales:{
+                    x:{ beginAtZero:true, max:100 }
+                }
+            }
+        }
+    );
+ 
+}
+ 
+/* ---- Score trend across attempts ---- */
+ 
+function renderTrendChart(){
+ 
+    let labels=results.map((r,i)=>"Attempt "+(i+1));
+ 
+    let data=results.map(r=>r.percentage);
+ 
+    if(trendChartObj) trendChartObj.destroy();
+ 
+    trendChartObj=new Chart(
+        document.getElementById("trendChart"),
+        {
+            type:"line",
+            data:{
+                labels: labels.length ? labels : ["No Data"],
+                datasets:[{
+                    label:"Percentage Score",
+                    data: data.length ? data : [0],
+                    borderColor:"#dc2626",
+                    backgroundColor:"rgba(220,38,38,0.15)",
+                    tension:0.3,
+                    fill:true
+                }]
+            },
+            options:{
+                responsive:true,
+                maintainAspectRatio:false,
+                scales:{
+                    y:{ beginAtZero:true, max:100 }
+                }
+            }
+        }
+    );
+ 
+}
+ 
+/* ---- Question difficulty analysis ---- */
+ 
+function renderDifficultyTable(){
+ 
+    let wrap=document.getElementById("difficultyTableWrap");
+ 
+    if(answerLog.length===0){
+ 
+        wrap.innerHTML="<p>No question attempts recorded yet.</p>";
+ 
+        return;
+ 
+    }
+ 
+    let grouped={};
+ 
+    answerLog.forEach(entry=>{
+ 
+        if(!grouped[entry.question]){
+ 
+            grouped[entry.question]={
+ 
+                attempts:0,
+                correct:0,
+                category:entry.category
+ 
+            };
+ 
+        }
+ 
+        grouped[entry.question].attempts++;
+ 
+        if(entry.correct) grouped[entry.question].correct++;
+ 
+    });
+ 
+    let rows=Object.keys(grouped).map(q=>{
+ 
+        let g=grouped[q];
+ 
+        let difficultyPercent=
+            Math.round((g.correct/g.attempts)*100);
+ 
+        let tagClass="diff-easy";
+        let tagLabel="Easy";
+ 
+        if(difficultyPercent<40){
+            tagClass="diff-hard";
+            tagLabel="Hard";
+        }else if(difficultyPercent<70){
+            tagClass="diff-medium";
+            tagLabel="Medium";
+        }
+ 
+        return {
+ 
+            question:q,
+            category:g.category,
+            attempts:g.attempts,
+            difficultyPercent:difficultyPercent,
+            tagClass:tagClass,
+            tagLabel:tagLabel
+ 
+        };
+ 
+    });
+ 
+    /* hardest questions first */
+    rows.sort((a,b)=>a.difficultyPercent-b.difficultyPercent);
+ 
+    let html=`
+        <table>
+            <thead>
+                <tr>
+                    <th>Question</th>
+                    <th>Category</th>
+                    <th>Attempts</th>
+                    <th>Correct %</th>
+                    <th>Difficulty</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+ 
+    rows.forEach(r=>{
+ 
+        html+=`
+            <tr>
+                <td style="text-align:left">${r.question}</td>
+                <td>${r.category}</td>
+                <td>${r.attempts}</td>
+                <td>${r.difficultyPercent}%</td>
+                <td><span class="diff-tag ${r.tagClass}">${r.tagLabel}</span></td>
+            </tr>
+        `;
+ 
+    });
+ 
+    html+="</tbody></table>";
+ 
+    wrap.innerHTML=html;
+ 
+}
+ 
+/* ---- Clear statistics data ---- */
+ 
+function clearAllStats(){
+ 
+    if(confirm("Clear all results and analytics data? This cannot be undone.")){
+ 
+        results=[];
+        answerLog=[];
+ 
+        localStorage.removeItem("mcqResults");
+        localStorage.removeItem("mcqAnswerLog");
+ 
+        displayStatistics();
+        displayLeaderboard();
+ 
+    }
+ 
+}
+ 
+/* ================= INITIAL PAGE ================= */
+ 
+showPage("home");
+ 
+</script>
+ 
+</body>
+</html>
